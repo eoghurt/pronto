@@ -1,6 +1,6 @@
 [package]
 name = "pronto"
-version = "0.1.1"
+version = "0.1.2"
 description = "A PDF app that opens the file and gets out of the way"
 edition = "2021"
 
@@ -22,3 +22,6 @@ lto = true
 opt-level = 3
 panic = "abort"
 strip = true
+
+[target.'cfg(target_os = "macos")'.dependencies]
+core-foundation = "0.10"

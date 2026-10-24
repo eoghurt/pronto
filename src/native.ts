@@ -97,3 +97,12 @@ export function report(where: string, err: unknown) {
 export function note(text: string) {
   if (inApp) invoke("log", { message: text }).catch(() => {});
 }
+
+/** Whether double-clicking a PDF opens Pronto. Always true outside the app. */
+export async function isDefaultPdfApp(): Promise<boolean> {
+  return inApp ? invoke<boolean>("is_default_pdf_app") : true;
+}
+
+export async function makeDefaultPdfApp(): Promise<void> {
+  if (inApp) await invoke("make_default_pdf_app");
+}

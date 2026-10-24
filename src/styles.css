@@ -104,6 +104,9 @@ body[data-view="home"] #home, body[data-view="editor"] #editor { display: flex; 
 .buttons { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 .buttons .btn { height: 52px; padding: 0 26px; font-size: 18px; }
 
+.link.make-default { margin-top: 26px; padding-top: 0; align-self: center; font-size: 15px; color: var(--muted); }
+.link.make-default:hover { color: var(--ink); }
+
 .stack { position: relative; width: 200px; height: 190px; }
 .stack .card {
   position: absolute; left: 50%; top: 50%; width: 120px; height: 150px; border-radius: 16px;
@@ -390,7 +393,8 @@ body.dragging[data-view="editor"] .drop-veil { display: grid; }
   .toolbar b { font-size: 16px; }
 }
 @media (max-width: 900px) {
-  .home-body { grid-template-columns: 1fr; overflow-y: auto; }
+  .home-body { grid-template-columns: 1fr; grid-auto-rows: max-content; overflow-y: auto; }
+  .dropzone { padding: 32px 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

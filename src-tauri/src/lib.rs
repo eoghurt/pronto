@@ -123,6 +123,56 @@ fn clipboard_pdf(app: tauri::AppHandle) -> Option<String> {
     Some(path.to_string_lossy().to_string())
 }
 
+// Default PDF app. This uses the system-wide setting (what Get Info › Change All
+// sets), never Finder's per-file "Always Open With" tag: macOS refuses to open
+// a downloaded file tagged for an app that Apple hasn't notarized.
+#[cfg(target_os = "macos")]
+mod default_app {
+    use core_foundation::base::TCFType;
+    use core_foundation::string::{CFString, CFStringRef};
+
+    const PDF: &str = "com.adobe.pdf";
+    const ROLES_ALL: u32 = 0xFFFF_FFFF;
+
+    #[link(name = "CoreServices", kind = "framework")]
+    extern "C" {
+        fn LSCopyDefaultRoleHandlerForContentType(content_type: CFStringRef, role: u32) -> CFStringRef;
+        fn LSSetDefaultRoleHandlerForContentType(content_type: CFStringRef, role: u32, bundle_id: CFStringRef) -> i32;
+    }
+
+    pub fn current() -> Option<String> {
+        let ty = CFString::new(PDF);
+        let handler = unsafe { LSCopyDefaultRoleHandlerForContentType(ty.as_concrete_TypeRef(), ROLES_ALL) };
+        if handler.is_null() {
+            return None;
+        }
+        Some(unsafe { CFString::wrap_under_create_rule(handler) }.to_string())
+    }
+
+    pub fn set(bundle_id: &str) -> Result<(), String> {
+        let ty = CFString::new(PDF);
+        let id = CFString::new(bundle_id);
+        let status = unsafe { LSSetDefaultRoleHandlerForContentType(ty.as_concrete_TypeRef(), ROLES_ALL, id.as_concrete_TypeRef()) };
+        if status == 0 { Ok(()) } else { Err(format!("macOS wouldn't change the PDF app (error {})", status)) }
+    }
+}
+
+#[tauri::command]
+fn is_default_pdf_app(app: tauri::AppHandle) -> bool {
+    #[cfg(target_os = "macos")]
+    return default_app::current().is_some_and(|id| id.eq_ignore_ascii_case(&app.config().identifier));
+    #[cfg(not(target_os = "macos"))]
+    { let _ = app; true }
+}
+
+#[tauri::command]
+fn make_default_pdf_app(app: tauri::AppHandle) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    return default_app::set(&app.config().identifier);
+    #[cfg(not(target_os = "macos"))]
+    { let _ = app; Ok(()) }
+}
+
 fn queue(app: &tauri::AppHandle, paths: Vec<String>) {
     if paths.is_empty() {
         return;
@@ -146,6 +196,8 @@ pub fn run() {
             write_pdf,
             file_exists,
             log,
+            is_default_pdf_app,
+            make_default_pdf_app,
             take_pending,
             clipboard_pdf
         ])
@@ -164,4 +216,16 @@ pub fn run() {
             }
             let _ = (app, event);
         });
+}
+
+#[cfg(all(test, target_os = "macos"))]
+mod tests {
+    /// Reads the PDF app and sets it to what it already is, so it changes nothing.
+    #[test]
+    fn default_pdf_app_round_trip() {
+        let before = super::default_app::current().expect("a PDF app is set");
+        println!("PDF app: {before}");
+        super::default_app::set(&before).expect("setting the same app works");
+        assert_eq!(super::default_app::current().as_deref(), Some(before.as_str()));
+    }
 }

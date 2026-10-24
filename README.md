@@ -9,8 +9,23 @@ Pronto lookbook (vol. 01, October 2026).
 2. Open the .dmg and drag **Pronto** onto **Applications**.
 3. Open Pronto from Applications.
 
-To make Pronto open your PDFs when you double-click them, select any PDF in Finder,
-press ⌘I, choose **Pronto** under **Open with**, and click **Change All…**.
+### Make Pronto open your PDFs
+
+Click **Open all my PDFs in Pronto** under the buttons on Pronto's Open screen.
+Double-clicking any PDF then opens it in Pronto. The link only shows while
+another app is your PDF app, so if it comes back (Acrobat sometimes takes PDFs
+back when it updates), click it again.
+
+> **Don't use Finder's “Open With › Always Open With” for Pronto.** It tags
+> each file with the app to use, and macOS refuses to open a downloaded file
+> that's tagged for an app Apple hasn't notarized. You'll see “Apple could not
+> verify ‘…pdf’ is free of malware”, and the file won't open. The link above
+> sets Pronto for all PDFs instead, which doesn't tag files. If a file already
+> shows that warning, run this once to remove the tag:
+>
+> ```bash
+> xattr -d com.apple.LaunchServices.OpenWith "path/to/file.pdf"
+> ```
 
 ### The first time you open it
 

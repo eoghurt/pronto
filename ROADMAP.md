@@ -14,4 +14,4 @@ Ideas not in v0.1, roughly in order of usefulness.
   screen exactly; embedding Figtree needs its TTF and fontkit.
 - **Combine PDFs** by dropping a second file onto the Pages rail.
 - **Print (⌘P)** and a real macOS share sheet on the share button.
-- **Signed and notarised builds** so the app opens without a Gatekeeper warning.
+- **Signed and notarised builds** (needs the paid Apple Developer Program) so the app opens without a Gatekeeper warning, and Finder's "Always Open With" works on downloaded PDFs.

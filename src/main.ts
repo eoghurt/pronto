@@ -5,7 +5,7 @@ import "./styles.css";
 import * as editor from "./editor";
 import { initHome, renderRecents } from "./home";
 import { icons, mark } from "./icons";
-import { clipboardPdf, inApp, report, keepBrowserFile, pickPdf, readPdf, takePending, basename, isScratch } from "./native";
+import { clipboardPdf, inApp, isDefaultPdfApp, makeDefaultPdfApp, report, keepBrowserFile, pickPdf, readPdf, takePending, basename, isScratch } from "./native";
 import { touchRecent, type Tool } from "./recents";
 import { choose, toast } from "./ui";
 
@@ -96,6 +96,24 @@ document.getElementById("save")!.onclick = () => editor.save();
 document.getElementById("zoom-in")!.onclick = () => editor.zoomBy(1.2);
 document.getElementById("zoom-out")!.onclick = () => editor.zoomBy(1 / 1.2);
 document.getElementById("zoom-label")!.onclick = () => editor.zoomFit();
+
+// Offered until Pronto is the PDF app. It sets the system-wide default rather
+// than tagging files one by one, which macOS blocks for downloaded files.
+const makeDefault = document.getElementById("make-default") as HTMLButtonElement;
+async function refreshMakeDefault() {
+  makeDefault.hidden = await isDefaultPdfApp().catch(() => true);
+}
+makeDefault.onclick = async () => {
+  try {
+    await makeDefaultPdfApp();
+    makeDefault.hidden = true;
+    toast("Done. Double-clicking a PDF now opens it in Pronto.");
+  } catch (err) {
+    toast(String(err), "error");
+  }
+};
+refreshMakeDefault();
+window.addEventListener("focus", refreshMakeDefault);
 
 // ---- Keyboard ----
 
