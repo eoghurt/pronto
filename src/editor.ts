@@ -1,14 +1,17 @@
 // The document view: pages, the five tools, thumbnails, undo and saving.
 
-import * as pdfjs from "pdfjs-dist";
+// The legacy build fills in JavaScript that Safari's engine (which Tauri uses on
+// macOS) doesn't have yet, such as Map.getOrInsertComputed. The modern build
+// draws nothing there.
+import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs";
 import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from "pdfjs-dist";
-import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import workerUrl from "pdfjs-dist/legacy/build/pdf.worker.min.mjs?url";
 import { icons } from "./icons";
 import {
   LINE_HEIGHT, TEXT_FONT, moveMark, newId, palettes, smoothPath, toolColour, touches,
   type InkMark, type Mark, type Pt, type Rect, type Slot, type TextMark,
 } from "./marks";
-import { basename, isScratch, pickSavePath, writePdf } from "./native";
+import { basename, isScratch, note, pickSavePath, report, writePdf } from "./native";
 import { touchRecent, type Tool } from "./recents";
 import { drawSignature, loadSignature } from "./signature";
 import { askText, toast } from "./ui";
@@ -104,8 +107,13 @@ export const openPath = () => filePath;
 
 // ---- Opening ----
 
+let openedAt = 0;
+let firstDrawn = false;
+
 export async function open(path: string, bytes: Uint8Array) {
   await close();
+  openedAt = performance.now();
+  firstDrawn = false;
   filePath = path;
   fileName = basename(path);
   original = bytes;
@@ -355,7 +363,8 @@ async function renderPage(v: View) {
   });
   try {
     await v.task.promise;
-  } catch {
+  } catch (err) {
+    report(`page ${v.slot.src + 1}`, err);
     v.task = null;
     return; // cancelled, or a broken page; the page stays blank rather than stopping the others
   }
@@ -365,6 +374,10 @@ async function renderPage(v: View) {
   else v.el.prepend(canvas);
   v.canvas = canvas;
   v.rendered = s;
+  if (!firstDrawn) {
+    firstDrawn = true;
+    note(`${fileName}: first page drawn ${Math.round(performance.now() - openedAt)} ms after opening`);
+  }
   if (!v.textDone) renderText(v, page);
 }
 
@@ -380,8 +393,8 @@ async function renderText(v: View, page: PDFPageProxy) {
     const end = document.createElement("div");
     end.className = "endOfContent";
     v.textLayer.append(end);
-  } catch {
-    /* no text to select on this page */
+  } catch (err) {
+    report(`text on page ${v.slot.src + 1}`, err); // the page still shows; it just can't be highlighted by text
   }
 }
 
@@ -397,7 +410,8 @@ async function renderThumb(v: View) {
   try {
     await page.render({ canvas, canvasContext: canvas.getContext("2d", { alpha: false })!, viewport: vp }).promise;
     v.thumb.querySelector(".tpage")!.prepend(canvas);
-  } catch {
+  } catch (err) {
+    report(`thumbnail ${v.slot.src + 1}`, err);
     v.thumbDone = false;
   }
 }

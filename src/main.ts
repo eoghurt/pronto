@@ -5,9 +5,12 @@ import "./styles.css";
 import * as editor from "./editor";
 import { initHome, renderRecents } from "./home";
 import { icons, mark } from "./icons";
-import { clipboardPdf, inApp, keepBrowserFile, pickPdf, readPdf, takePending, basename, isScratch } from "./native";
+import { clipboardPdf, inApp, report, keepBrowserFile, pickPdf, readPdf, takePending, basename, isScratch } from "./native";
 import { touchRecent, type Tool } from "./recents";
 import { choose, toast } from "./ui";
+
+window.addEventListener("error", (e) => report("error", e.error ?? e.message));
+window.addEventListener("unhandledrejection", (e) => report("unhandled", e.reason));
 
 // ---- Static pieces of the page ----
 

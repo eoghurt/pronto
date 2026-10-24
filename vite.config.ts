@@ -3,5 +3,5 @@ import { defineConfig } from "vite";
 export default defineConfig({
   clearScreen: false,
   server: { port: 1420, strictPort: true, watch: { ignored: ["**/src-tauri/**"] } },
-  build: { target: "safari16", chunkSizeWarningLimit: 1500 },
+  build: { target: "safari14", chunkSizeWarningLimit: 1500 },
 });

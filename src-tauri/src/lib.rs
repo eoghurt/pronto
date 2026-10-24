@@ -59,6 +59,12 @@ fn write_pdf(request: Request<'_>) -> Result<(), String> {
     })
 }
 
+/** Errors from the page, printed where `pronto` was started from. */
+#[tauri::command]
+fn log(message: String) {
+    eprintln!("[pronto] {}", message);
+}
+
 #[tauri::command]
 fn file_exists(path: String) -> bool {
     Path::new(&path).is_file()
@@ -139,6 +145,7 @@ pub fn run() {
             read_pdf,
             write_pdf,
             file_exists,
+            log,
             take_pending,
             clipboard_pdf
         ])

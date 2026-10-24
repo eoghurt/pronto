@@ -83,3 +83,17 @@ export function basename(path: string): string {
 export function isScratch(path: string): boolean {
   return /\/Caches\/com\.eoghurt\.pronto\/Pasted PDF \d+\.pdf$/.test(path);
 }
+
+/** Records an error that the interface recovers from, so it can still be found. */
+export function report(where: string, err: unknown) {
+  const e = err as { name?: string; message?: string; stack?: string };
+  if (e?.name === "RenderingCancelledException") return;
+  const text = `${where}: ${e?.name ?? ""} ${e?.message ?? String(err)}\n${e?.stack ?? ""}`;
+  console.error(text);
+  if (inApp) invoke("log", { message: text }).catch(() => {});
+}
+
+/** A line in the terminal log (only visible when Pronto is started from Terminal). */
+export function note(text: string) {
+  if (inApp) invoke("log", { message: text }).catch(() => {});
+}
