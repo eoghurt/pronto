@@ -3,6 +3,32 @@
 A PDF app that opens the file and gets out of the way. Built with Tauri, from the
 Pronto lookbook (vol. 01, October 2026).
 
+## Install
+
+1. Download **Pronto-…-mac.dmg** from the [latest release](../../releases/latest). It runs on Apple silicon and Intel Macs, macOS 11 Big Sur or later.
+2. Open the .dmg and drag **Pronto** onto **Applications**.
+3. Open Pronto from Applications.
+
+To make Pronto open your PDFs when you double-click them, select any PDF in Finder,
+press ⌘I, choose **Pronto** under **Open with**, and click **Change All…**.
+
+### The first time you open it
+
+Pronto isn't signed with a paid Apple developer account, so the first time you open it macOS shows a warning that it can't check Pronto for malicious software, and doesn't open it. To open it anyway (you only do this once):
+
+1. Click **Done** on the warning.
+2. Open **System Settings › Privacy & Security**.
+3. Scroll down to **Security**. Next to “Pronto was blocked to protect your Mac”, click **Open Anyway**.
+4. Enter your Mac's password if it asks, then click **Open Anyway** again.
+
+Or, in Terminal, run this once after dragging Pronto into Applications:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Pronto.app
+```
+
+It takes away the “downloaded from the internet” mark that macOS checks, so Pronto opens normally.
+
 ## What it does
 
 - **Opens fast.** Drop a PDF anywhere, press ⌘O, paste one from the clipboard,
@@ -39,7 +65,7 @@ same in Preview, Acrobat, email previews and printers.
 ```bash
 npm install
 npm run tauri dev       # the app, with live reload
-npm run tauri build     # a release Pronto.app in src-tauri/target/release/bundle/macos
+npm run tauri build -- --target universal-apple-darwin --bundles dmg   # the release disk image
 npm run dev             # just the page, in a browser, at localhost:1420
 ```
 
