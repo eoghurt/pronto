@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pronto</title>
+    <style>
+      /* Paint the paper colour before anything loads, so the window never flashes white. */
+      html, body { background: #fff6ec; margin: 0; }
+    </style>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body data-view="home" data-tool="highlight">
+    <!-- Open -->
+    <section id="home" class="view">
+      <header class="topbar" data-tauri-drag-region>
+        <div class="brand" data-tauri-drag-region><span class="logo" data-mark></span>Pronto</div>
+      </header>
+      <div class="home-body">
+        <div class="dropzone" id="dropzone">
+          <div class="stack" aria-hidden="true">
+            <span class="card lilac"></span><span class="card sun"></span>
+            <span class="card front" data-icon="download"></span>
+          </div>
+          <h1>Drop a PDF anywhere</h1>
+          <p>It opens on page 1, ready to mark up. Nothing to set up first.</p>
+          <div class="buttons">
+            <button class="btn ink" id="open-btn">Open file <kbd>⌘O</kbd></button>
+            <button class="btn beige" id="paste-btn">Paste from clipboard</button>
+          </div>
+        </div>
+        <aside class="recents">
+          <div class="recents-head">
+            <h2>Recent</h2>
+            <span>Coloured by last tool used</span>
+          </div>
+          <ul id="recent-list"></ul>
+          <button class="link" id="recent-more" hidden>Show all recent files</button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- Edit -->
+    <section id="editor" class="view">
+      <header class="topbar" data-tauri-drag-region>
+        <button class="btn beige back" id="back" data-icon="back">Recent</button>
+        <div class="doc-title" data-tauri-drag-region><i class="dot" title="Unsaved changes"></i><span id="doc-title"></span></div>
+        <div class="actions">
+          <button class="round" id="undo" data-icon="undo" title="Undo (⌘Z)" disabled></button>
+          <button class="round" id="share" data-icon="share" title="Save a copy (⇧⌘S)"></button>
+          <button class="btn save" id="save" title="Save (⌘S)">Save</button>
+        </div>
+      </header>
+      <div class="workspace">
+        <aside class="side"><div class="card onpage" id="onpage"></div></aside>
+        <div class="scroller" id="scroller"><div class="pages" id="pages"></div></div>
+        <aside class="rail" id="thumbs"></aside>
+      </div>
+      <div class="zoom">
+        <button id="zoom-out" data-icon="minus" title="Zoom out (⌘−)"></button>
+        <button id="zoom-label" title="Fit to width (⌘0)">100%</button>
+        <button id="zoom-in" data-icon="plus" title="Zoom in (⌘+)"></button>
+        <span class="page-label" id="page-label"></span>
+      </div>
+      <div class="dock">
+        <div class="swatches" id="swatches"></div>
+        <nav class="toolbar" id="toolbar" aria-label="Tools">
+          <button data-tool="highlight" title="Highlight (H)"><span class="ic" data-icon="highlight"></span><b>Highlight</b></button>
+          <button data-tool="type" title="Type (T)"><span class="ic" data-icon="type"></span><b>Type</b></button>
+          <button data-tool="draw" title="Draw (D)"><span class="ic" data-icon="draw"></span><b>Draw</b></button>
+          <button data-tool="sign" title="Sign (S)"><span class="ic" data-icon="sign"></span><b>Sign</b></button>
+          <button data-tool="pages" title="Pages (P)"><span class="ic" data-icon="pages"></span><b>Pages</b></button>
+        </nav>
+      </div>
+    </section>
+
+    <div class="drop-veil" aria-hidden="true"><div>Drop to open</div></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
