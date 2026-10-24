@@ -1,6 +1,6 @@
 [package]
 name = "pronto"
-version = "0.1.0"
+version = "0.1.1"
 description = "A PDF app that opens the file and gets out of the way"
 edition = "2021"
 
